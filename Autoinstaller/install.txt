@@ -1,0 +1,13 @@
+Vscode, https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user
+Spotify, https://download.scdn.co/SpotifySetup.exe
+Sublime, https://www.sublimetext.com/download_thanks?target=win-x64#direct-downloads
+Telegram, https://telegram.org/dl/desktop/win64
+Googledrive, https://dl.google.com/drive-file-stream/GoogleDriveSetup.exe
+python, https://www.python.org/downloads/
+mysql, link
+c, https://aka.ms/vs/17/release/vc_redist.x64.exe
+vm, https://download.virtualbox.org/virtualbox
+adobe, link
+whatsapp, link
+chrome, link
+pycharm, link
