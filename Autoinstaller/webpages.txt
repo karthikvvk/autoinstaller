@@ -1,0 +1,4 @@
+adobe,https://apps.microsoft.com/store/detail/adobe-acrobat-reader-dc/XPDP273C0XHQH2?hl=en-in&gl=in&icid=CNavAppsWindowsApps
+whatsapp,https://apps.microsoft.com/store/detail/whatsapp/9NKSQGP7F2NH?hl=en-in&gl=in&icid=CNavAppsWindowsApps
+chrome,https://www.google.com/chrome/
+pycharm,https://www.jetbrains.com/pycharm/download/download-thanks.html?platform=windows&code=PCC
