@@ -15,27 +15,32 @@ download the application.
 **NOTE THIS PROJECT ONLY WORKS IN 64 BIT
 """
 import string
-import subprocess
 from tkinter import ttk
 import threading
-import time
 import getpass
+import checkboxx.automate_checkbox as auch
 from tkinter import *
 import os
 import webbrowser
 import oopen.openeasy as op
+import winreg as wrg
 
-os.system('pip install pyinstaller')
-os.system('pip install requests')
+try:
+    os.system('python.exe -m pip install --upgrade pip > NUL')
+except:
+    pass
+os.system('pip install requests > NUL')
 import requests
 
-theme = '#1e1e1e'
-f_theme = 'white'
 user = getpass.getuser()
+theme = '#f0f0f0'
+f_theme = 'black'
 windisk = ''
-apps = []
-
 disks = []
+cpy = False
+inst = False
+root_dir = os.getcwd()
+
 for i in string.ascii_uppercase:
     if os.path.exists(f'{i}:\\'):
         disks.append(i)
@@ -43,125 +48,18 @@ for t in disks:
     if os.path.exists(f'{t}:\\Users'):
         windisk = t
 
-
-root = Tk()
-root.configure(bg=theme)
-root.geometry(f'{root.winfo_screenwidth() - 500}x{root.winfo_screenheight() - 300}')
-root.title('Auto installer')
+val = []
 
 
-def mysql():
-    request_sql = str(
-        requests.get(url='https://dev.mysql.com/downloads/installer/', allow_redirects=True).content).split(
-        ' ')
-    lis_sql = []
-    for t in request_sql:
-        if 'href' in t and 'https' not in t:
-            lis_sql.append(t)
-    req = []
-    for i in lis_sql:
-        if '/downloads/file/?id=' in i:
-            req.append(i)
-    last = str(requests.get(url='https://dev.mysql.com/' + req[-1].split('"')[1], allow_redirects=True).content).split(
-        ' ')
-    for g in last:
-        if '.msi' in g and 'href' in g and 'https' not in g:
-            fh = open('mysql.exe', 'wb')
-            fh.write(requests.get(url='https://dev.mysql.com/' + g.split('"')[1], allow_redirects=True).content)
-            fh.close()
+def application():
+    global user
 
+    root = Tk()
+    root.geometry(f'{root.winfo_screenwidth() - 500}x{root.winfo_screenheight() - 300}+100+100')
+    root.title('Auto installer')
 
-def vm(base_url, app):
-    request_sql = str(
-        requests.get(url=base_url, allow_redirects=True).content).split(' ')
-    s = 0
-    l = 0
-    m = 0
-    for t in request_sql:
-        if 'href' in t:
-            try:
-                mv = int(t.split('"')[1][0])
-                if mv > s:
-                    s = mv
-            except:
-                continue
-    for t in request_sql:
-        if 'href' in t:
-            if t.split('"')[1].startswith(f'{s}'):
-                try:
-                    sv = int(t.split('"')[1].split(".")[-1].rstrip("/"))
-
-                    if sv > l:
-                        l = sv
-                except:
-                    continue
-
-    for t in request_sql:
-        if 'href' in t:
-            if t.split('"')[1].startswith(f'{s}') and t.split('"')[1].endswith(f'{l}'):
-                try:
-                    sv = int(t.split('"')[1].split(".")[-2])
-
-                    if sv > m:
-                        m = sv
-                except:
-                    continue
-    urls = f'{base_url}/{s}.{m}.{l}/'
-    request_sql = str(requests.get(url=urls, allow_redirects=True).content).split(' ')
-    for t in request_sql:
-        if (f'VirtualBox-{s}.{m}.{l}' in t and '.exe' in t) and 'href' in t:
-            open(f'{app}.exe', 'wb').write(requests.get(url=urls + t.split('"')[1], allow_redirects=True).content)
-        if (f'Oracle_VM_VirtualBox_Extension_Pack-{s}.{m}.{l}.vbox-extpack' in t) and 'href' in t:
-            fh = open(f'Oracle_VM_VirtualBox_Extension_Pack-{s}.{m}.{l}.vbox-extpack', 'wb')
-            fh.write(requests.get(url=urls + t.split('"')[1], allow_redirects=True).content)
-            fh.close()
-
-
-def ext_download(base_url, app):
-    ct = str(requests.get(url=base_url, allow_redirects=True).content).split(' ')
-    lis_py = []
-    for k in ct:
-        if 'https' in str(k) and 'href' in str(k) and 'exe' in str(k):
-            lis_py.append(k)
-    for b in lis_py:
-        if '64' in b:
-            fh = open(f'{app}.exe', 'wb')
-            fh.write(requests.get(url=b.split('"')[1], allow_redirects=True).content)
-            fh.flush()
-            fh.close()
-
-
-def afters():
-    global root
-    root.destroy()
-    vikings = Tk()
-    vikings.configure(bg=theme)
-    vikings.geometry('530x200')
-    vikings.title('Auto installer')
-    Label(vikings,
-          text='Auto installer starts to download the selected applications and install the in background after 40sec\n\n'
-               'Make sure the system is plugged in and have internet access.\n\n'
-               'If any specific application or package or any kind of executables needs to be run\n'
-               f'   can be added to this directory by clicking "Add": \n"{os.getcwd()}"', bg=theme, fg=f_theme, justify=LEFT).grid()
-
-    def disable_event():
-        pass
-
-    def des():
-        time.sleep(40)
-        vikings.destroy()
-
-    def add():
-        subprocess.run(['explorer', os.getcwd()])
-    vikings.protocol("WM_DELETE_WINDOW", disable_event)
-    threading.Thread(target=des).start()
-    ttk.Button(vikings, text='Add', command=add).grid()
-    vikings.mainloop()
-
-
-def main():
-    global root, user
     lst = []
+    d_lst = dict([])
 
     if os.path.exists('install.txt'):
         pass
@@ -170,161 +68,355 @@ def main():
 
     fh = open('install.txt')
     re = fh.readlines()
-    for i in re:
-        sp = i.split(',')
+    for ii in re:
         try:
-            sp[1] = sp[1].rstrip('\n')
+            sp = ii.split(',')
+            sp[1] = sp[1].rstrip('\n').strip()
+            sp[0] = sp[0].strip()
         except:
             continue
         if not sp[0].startswith("#"):
-            lst.append(sp)
-    vari = []
-    for i in range(len(lst)):
-        vari.append('a' + str(i))
-        vari[i] = IntVar(root, value=0)
+            lst.append(sp[0])
+            d_lst[sp[0]] = sp[1]
 
-    for i in range(len(lst)):
-        Checkbutton(root, variable=vari[i], bg=theme, justify='left').grid(row=i + 1, column=0)
-    val = []
-    for i in range(len(lst)):
-        Label(root, text=lst[i][0], bg=theme, fg=f_theme, justify='left').grid(row=i + 1, column=1)
+    auch.cr_checkbox(root, lst, bg=theme, fg=f_theme)
 
-    def download_selected():
-        for ind in range(len(lst)):
-            x = vari[ind].get()
-            val.append(x)
-        if 1 in val:
-            afters()
-            for k in range(len(val)):
-                if val[k]:
-                    apps.append(lst[k][0].lower())
-                    if 'mysql' in lst[k][0].lower():
-                        mysql()
-                    elif 'python' in lst[k][0].lower():
-                        ext_download(lst[k][1], 'python')
-                    elif 'sublime' in lst[k][0].lower():
-                        ext_download(lst[k][1], 'sublime')
-                    elif 'vm' in lst[k][0].lower():
-                        vm(lst[k][1], 'vm')
-                    else:
-                        fh = open(lst[k][0] + '.exe', 'wb')
-                        fh.write(requests.get(url=lst[k][1], allow_redirects=True).content)
-                        fh.close()
-            root.destroy()
-        else:
-            pass
+    def mysql():
+        request_sql = str(
+            requests.get(url='https://dev.mysql.com/downloads/installer/', allow_redirects=True).content).split(
+            ' ')
+        lis_sql = []
+        for tt in request_sql:
+            if 'href' in tt and 'https' not in tt:
+                lis_sql.append(t)
+        req = []
+        for iii in lis_sql:
+            if '/downloads/file/?id=' in iii:
+                req.append(iii)
+        last = str(
+            requests.get(url='https://dev.mysql.com/' + req[-1].split('"')[1], allow_redirects=True).content).split(
+            ' ')
+        for g in last:
+            if '.msi' in g and 'href' in g and 'https' not in g:
+                fhf = open(f'{windisk}:\\Users\\{user}\\Downloads\\mysql.exe', 'wb')
+                fhf.write(requests.get(url='https://dev.mysql.com/' + g.split('"')[1], allow_redirects=True).content)
+                fhf.close()
 
-    def download_all():
-        afters()
-        for j in range(len(lst)):
-            apps.append(lst[j][0].lower())
-            if 'mysql' in lst[j][0].lower():
-                mysql()
-            elif 'python' in lst[j][0].lower():
-                ext_download(lst[j][1], 'python')
-            elif 'sublime' in lst[j][0].lower():
-                ext_download(lst[j][1], 'sublime')
-            elif 'vm' in lst[j][0].lower():
-                vm(lst[j][1], 'vm')
-            else:
+    def vm(base_url, app):
+        request_sql = str(
+            requests.get(url=base_url, allow_redirects=True).content).split(' ')
+        s = 0
+        ll = 0
+        m = 0
+        for ty in request_sql:
+            if 'href' in ty:
                 try:
-                    fh = open(lst[j][0] + '.exe', 'wb')
-                    fh.write(requests.get(url=lst[j][1], allow_redirects=True).content)
-                    fh.close()
+                    mv = int(ty.split('"')[1][0])
+                    if mv > s:
+                        s = mv
                 except:
                     continue
+        for ti in request_sql:
+            if 'href' in ti:
+                if ti.split('"')[1].startswith(f'{s}'):
+                    try:
+                        sv = int(ti.split('"')[1].split(".")[-1].rstrip("/"))
+
+                        if sv > ll:
+                            ll = sv
+                    except:
+                        continue
+
+        for ti in request_sql:
+            if 'href' in ti:
+                if ti.split('"')[1].startswith(f'{s}') and ti.split('"')[1].endswith(f'{ll}'):
+                    try:
+                        sv = int(ti.split('"')[1].split(".")[-2])
+
+                        if sv > m:
+                            m = sv
+                    except:
+                        continue
+        urls = f'{base_url}/{s}.{m}.{ll}/'
+        request_sql = str(requests.get(url=urls, allow_redirects=True).content).split(' ')
+        for ti in request_sql:
+            if (f'VirtualBox-{s}.{m}.{ll}' in ti and '.exe' in ti) and 'href' in ti:
+                open(f'{app}.exe', 'wb').write(requests.get(url=urls + ti.split('"')[1], allow_redirects=True).content)
+            if (f'Oracle_VM_VirtualBox_Extension_Pack-{s}.{m}.{ll}.vbox-extpack' in ti) and 'href' in ti:
+                fhg = open(
+                    f'{windisk}:\\Users\\{user}\\Downloads\\Oracle_VM_VirtualBox_Extension_Pack-{s}.{m}.{ll}.vbox-extpack',
+                    'wb')
+                fhg.write(requests.get(url=urls + ti.split('"')[1], allow_redirects=True).content)
+                fhg.close()
+
+    def ext_download(base_url, app):
+        ct = str(requests.get(url=base_url, allow_redirects=True).content).split(' ')
+        lis_py = []
+        for k in ct:
+            if 'https' in str(k) and 'href' in str(k) and 'exe' in str(k):
+                lis_py.append(k)
+        for b in lis_py:
+            if '64' in b:
+                def res():
+                    fhp = open(f'{windisk}:\\Users\\{user}\\Downloads\\{app}.exe', 'wb')
+                    fhp.write(requests.get(url=b.split('"')[1], allow_redirects=True).content)
+                    fhp.flush()
+                    fhp.close()
+
+                th = threading.Thread(target=res)
+                th.start()
+                th.join()
+
+    def start_down():
+        global val, root_dir, inst
+        os.chdir(root_dir)
+
+        for j in val:
+            if 'mysql' in j:
+                mysql()
+            elif 'python' in j:
+                ext_download(d_lst[j], j)
+            elif 'sublime' in j:
+                ext_download(d_lst[j], j)
+            elif 'vm' in j:
+                vm(d_lst[j], j)
+            else:
+                def rss():
+                    fhd = open(f'{windisk}:\\Users\\{user}\\Downloads\\{j}.exe', 'wb')
+                    fhd.write(requests.get(url=d_lst[j], allow_redirects=True).content)
+                    fhd.close()
+
+                thar = threading.Thread(target=rss)
+                thar.start()
+                thar.join()
+        os.chdir(root_dir)
+        fhr = open('webpages.txt')
+        lis = fhr.readlines()
+        web_apps = []
+        for y in lis:
+            web_apps.append(y.split(',')[0])
+        cn = 0
+        for idb in web_apps:
+            if idb in val:
+                webbrowser.open_new_tab(url=lis[cn][1])
+            cn += 1
+
+        lis_files = os.listdir(f"{windisk}:\\Users\\{user}\\Downloads\\")
+        try:
+            lis_files.remove('autoinstall.exe')
+        except:
+            pass
+        for idb in lis_files:
+            if not idb.endswith(".py") and not idb.endswith(".txt") and "." in idb:
+                try:
+                    os.startfile(f"{windisk}:\\Users\\{user}\\Downloads\\{idb}")
+                except:
+                    pass
+        inst = True
+
+    def download_selected():
+        global val
+        val = auch.fetch_cked_val()
         root.destroy()
+        threading.Thread(target=start_down).start()
+
+    def download_all():
+        global val
+        val = lst
+        root.destroy()
+        threading.Thread(target=start_down).start()
 
     def add_app():
         root.destroy()
         tk = Tk()
-        tk.configure(bg=theme)
-        tk.geometry('500x100')
+        tk.geometry('800x300+200+100')
         tk.title('Auto installer add an app')
+        nam = StringVar(tk, value='')
         lnk = StringVar(tk, value='')
 
         def submit():
             link = lnk.get()
-            op.o_append('install.txt', link, newline=True)
-            lst.append([link])
-            try:
-                tk.destroy()
-            except:
-                pass
-            main()
+            name = nam.get()
+            if len(link) > 0 and len(name) > 0:
+                op.o_append('install.txt', name + "," + link, newline=True)
+                lst.append(name)
+                try:
+                    tk.destroy()
+                except:
+                    pass
+                application()
+            else:
+                Label(tk, text='Please enter both name and link\nto successfully add an app.').grid(row=10, column=10)
 
-        e = Entry(tk, textvariable=lnk, width=50)
-        e.grid(row=0, column=1)
-        e.focus_set()
-        Label(tk, text='enter the name, link:', bg=theme, fg=f_theme).grid(row=0, column=0)
-        Button(tk, text='add', command=submit).grid(row=1, column=0)
+        l_e = Entry(tk, textvariable=lnk, width=50)
+        l_e.grid(row=0, column=1)
+        n_e = Entry(tk, textvariable=nam, width=50)
+        n_e.grid(row=1, column=1)
+        Label(tk, text='enter the name of the app:').grid(row=0, column=0)
+        Label(tk, text='enter the link of the app:').grid(row=1, column=0)
+        ttk.Button(tk, text='add', command=submit).grid(row=2, column=2)
         tk.mainloop()
 
     def remove_app():
-        for ind in range(len(lst)):
-            x = vari[ind].get()
-            val.append(x)
-        for k in range(len(val)):
-            if val[k]:
-                f = open('install.txt').read()
-                rep = f.replace(lst[k][0] + ',' + lst[k][1], "#" + lst[k][0] + ',' + lst[k][1])
-                ff = open('install.txt', 'w')
-                ff.write(rep)
-                ff.close()
-        for k in range(len(val)):
-            if val[k]:
-                lst.remove(lst[k])
+        rm_ls = auch.fetch_cked_val()
+        for y in rm_ls:
+            f = open('install.txt').read()
+            renam = y + ',' + d_lst[y]
+            rep = f.replace(renam, "#" + renam)
+            ff = open('install.txt', 'w')
+            ff.write(rep)
+            ff.close()
         root.destroy()
-        main()
+        application()
 
     add_b = ttk.Button(root, text='Add app', command=add_app)
     add_b.grid(row=0, column=5)
-    remove_b = ttk.Button(root, text='Remove app', command=remove_app)
+    remove_b = ttk.Button(root, text='Remove selected apps', command=remove_app)
     remove_b.grid(row=0, column=2)
-    install_b = ttk.Button(root, text='Install', command=download_selected)
+    install_b = ttk.Button(root, text='Install selected apps', command=download_selected)
     install_b.grid(row=0, column=3)
     install_all_b = ttk.Button(root, text='Install all', command=download_all)
     install_all_b.grid(row=0, column=4)
     root.mainloop()
 
-    lis = [
-        'https://apps.microsoft.com/store/detail/adobe-acrobat-reader-dc/XPDP273C0XHQH2?hl=en-in&gl=in&icid=CNavAppsWindowsApps',
-        'https://apps.microsoft.com/store/detail/whatsapp/9NKSQGP7F2NH?hl=en-in&gl=in&icid=CNavAppsWindowsApps',
-        'https://www.google.com/chrome/',
-        'https://www.jetbrains.com/pycharm/download/download-thanks.html?platform=windows&code=PCC']
-    web_apps = ['adobe', 'whatsapp', 'chrome', 'pycharm']
 
-    cn = 0
-    for i in web_apps:
-        if i in apps:
-            webbrowser.open_new_tab(url=lis[cn])
-        cn += 1
+application()
 
-    lis_files = os.listdir()
-    try:
-        lis_files.remove('autoinstall.exe')
-    except:
-        pass
-    for i in lis_files:
-        if not i.endswith(".py") and not i.endswith(".txt") and "." in i:
-            try:
-                os.startfile(i)
-            except:
-                pass
+bxs = []
+copyfiles = Tk()
+copyfiles.geometry(f'{copyfiles.winfo_screenwidth() - 500}x{copyfiles.winfo_screenheight() - 300}+100+100')
+copyfiles.title('Auto installer')
 
-    if os.path.exists(f'{windisk}:\\Users\\{user}\\autoinstaller'):
+
+def start_copy():
+    global bxs, cpy
+    for x in bxs:
+        os.chdir(f"{windisk}:\\Users\\{user}\\Downloads\\")
+        os.mkdir(x)
+        os.chdir(f"{root_dir}\\docopy\\")
+        if os.path.isdir(x):
+            os.system(f'xcopy "{root_dir}\\docopy\\{x}" "{windisk}:\\Users\\{user}\\Downloads\\{x}" /E /I > NUL')
+        elif os.path.isfile(x):
+            os.system(f'copy "{root_dir}\\docopy\\{x}" "{windisk}:\\Users\\{user}\\Downloads\\{x}" > NUL')
+    cpy = True
+    os.chdir(root_dir)
+    bxs = []
+    copyfiles.destroy()
+
+
+def copy_selected():
+    global bxs
+    bxs = auch.fetch_cked_val()
+    copyfiles.title('Auto installer(copying)')
+    start_copy()
+
+
+def copy_all():
+    global bxs
+    bxs = os.listdir()
+    copyfiles.title('Auto installer(copying)')
+    start_copy()
+
+
+os.chdir('docopy')
+dd = auch.cr_checkbox(copyfiles, sequence=os.listdir(), bg=theme, fg=f_theme)
+install_b = ttk.Button(copyfiles, text='copy selected', command=copy_selected)
+install_b.grid(row=0, column=3)
+install_all_b = ttk.Button(copyfiles, text='copy all', command=copy_all)
+install_all_b.grid(row=0, column=4)
+copyfiles.mainloop()
+
+
+def settings():
+    global user
+    groot = Tk()
+    groot.geometry(f'{groot.winfo_screenwidth() - 500}x{groot.winfo_screenheight() - 300}+100+100')
+    groot.title('Auto installer')
+
+    liss = [[], [], [], []]
+
+    if os.path.exists('settings.txt'):
         pass
     else:
-        os.mkdir(f'{windisk}:\\Users\\{user}\\autoinstaller')
-    os.chdir('docopy')
-    pd = os.getcwd()
-    for i in os.listdir():
-        os.chdir(f'{windisk}:\\Users\\{user}\\autoinstaller')
-        os.mkdir(i)
-        os.chdir(pd)
-        os.system(f'xcopy {i} {windisk}:\\Users\\{user}\\autoinstaller\\{i} /E /I')
-    subprocess.run(['explorer', f'{windisk}:\\Users\\{user}\\autoinstaller'])
-    os.abort()
+        os.abort()
+
+    fhh = open('settings.txt')
+    ree = fhh.readlines()
+    for iglu in ree:
+        s = iglu.split(',')
+        liss[0].append(s[0])
+        liss[1].append(s[1])
+        liss[2].append(s[2])
+        liss[3].append(s[3].rstrip("\n"))
+    Label(groot, text='Name', bg=theme, fg=f_theme).grid(row=0, column=0)
+    auch.cr_checkbox(groot, liss[0], bg=theme, fg=f_theme, row_lb=1, column_lb=0)
+
+    def change():
+        global cpy, inst
+        loc = wrg.HKEY_CURRENT_USER
+
+        def regs(location, key_name='', path=r"", dest_folder="", value=0):
+            soft = wrg.OpenKeyEx(location, path)
+            key = wrg.CreateKey(soft, dest_folder)
+            wrg.SetValueEx(key, key_name, 0, wrg.REG_DWORD, value)
+            if key:
+                wrg.CloseKey(key)
+
+        for j in liss[0]:
+            au = auch.fetch_cked_val()
+            if j in au:
+                valu = 1
+            else:
+                valu = 0
+            ind = liss[0].index(j)
+            regs(location=loc, key_name=liss[1][ind], value=valu, path=liss[2][ind], dest_folder=liss[3][ind])
+
+        groot.destroy()
+        while cpy and inst:
+            os.system('taskkill /IM explorer.exe /F')
+            os.system('start explorer.exe')
+            os.abort()
+
+    def add_setting():
+        groot.destroy()
+        tk = Tk()
+        tk.geometry('800x300+100+100')
+        tk.title('Auto installer add a setting')
+        nam = StringVar(tk, value='')
+        nam_sh = StringVar(tk, value='')
+        pat = StringVar(tk, value='')
+        fold = StringVar(tk, value='')
+
+        def submit():
+            folder = fold.get()
+            path = pat.get()
+            name = nam.get()
+            show_name = nam_sh.get()
+            op.o_append('settings.txt', f'{show_name},{name},{path},{folder}', newline=True)
+            tk.destroy()
+            settings()
+
+        l_e = Entry(tk, textvariable=nam_sh, width=50)
+        l_e.grid(row=0, column=1)
+        n_e = Entry(tk, textvariable=nam, width=50)
+        n_e.grid(row=1, column=1)
+        n_e = Entry(tk, textvariable=pat, width=50)
+        n_e.grid(row=2, column=1)
+        n_e = Entry(tk, textvariable=fold, width=50)
+        n_e.grid(row=3, column=1)
+
+        Label(tk, text='enter the name to be displayed:').grid(row=0, column=0)
+        Label(tk, text='enter the name of registry:').grid(row=1, column=0)
+        Label(tk, text='enter the name of the folder of the registry:').grid(row=3, column=0)
+        Label(tk, text='enter the full path except the destination folder:').grid(row=2, column=0)
+        ttk.Button(tk, text='add', command=submit).grid(row=4, column=2)
+        tk.mainloop()
+
+    add_b = ttk.Button(groot, text='Add a setting', command=add_setting)
+    add_b.grid(row=0, column=5)
+    install_b = ttk.Button(groot, text='change', command=change)
+    install_b.grid(row=0, column=3)
+    groot.mainloop()
 
 
-main()
+settings()
