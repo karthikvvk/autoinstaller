@@ -14,6 +14,7 @@ download the application.
     * Can also be used to open set of websites when logining into your PC.
 **NOTE THIS PROJECT ONLY WORKS IN 64 BIT
 """
+
 import string
 from tkinter import ttk
 import threading
@@ -48,6 +49,102 @@ for t in disks:
     if os.path.exists(f'{t}:\\Users'):
         windisk = t
 
+
+def settings():
+    global user
+    groot = Tk()
+    groot.geometry(f'{groot.winfo_screenwidth() - 500}x{groot.winfo_screenheight() - 300}+100+100')
+    groot.title('Auto installer')
+
+    liss = [[], [], [], []]
+
+    if os.path.exists('settings.txt'):
+        pass
+    else:
+        os.abort()
+
+    fhh = open('settings.txt')
+    ree = fhh.readlines()
+    for iglu in ree:
+        s = iglu.split(',')
+        liss[0].append(s[0])
+        liss[1].append(s[1])
+        liss[2].append(s[2])
+        liss[3].append(s[3].rstrip("\n"))
+    Label(groot, text='Name', bg=theme, fg=f_theme).grid(row=0, column=0)
+    regchbx = auch.cr_checkbox(groot, liss[0], bg=theme, fg=f_theme, row_lb=1, column_lb=0)
+
+    def change():
+        global cpy, inst
+        loc = wrg.HKEY_CURRENT_USER
+
+        def regs(location, key_name='', path=r"", dest_folder="", value=0):
+            soft = wrg.OpenKeyEx(location, path)
+            key = wrg.CreateKey(soft, dest_folder)
+            wrg.SetValueEx(key, key_name, 0, wrg.REG_DWORD, value)
+            if key:
+                wrg.CloseKey(key)
+
+        for j in liss[0]:
+            au = auch.fetch_cked_val(regchbx)
+            if j in au:
+                valu = 1
+            else:
+                valu = 0
+            ind = liss[0].index(j)
+            regs(location=loc, key_name=liss[1][ind], value=valu, path=liss[2][ind], dest_folder=liss[3][ind])
+
+        groot.destroy()
+        os.system('taskkill /IM explorer.exe /F')
+        os.system('start explorer.exe')
+
+    def add_setting():
+        groot.destroy()
+        tk = Tk()
+        tk.geometry('800x300+100+100')
+        tk.title('Auto installer add a setting')
+        nam = StringVar(tk, value='')
+        nam_sh = StringVar(tk, value='')
+        pat = StringVar(tk, value='')
+        fold = StringVar(tk, value='')
+
+        def submit():
+            folder = fold.get()
+            path = pat.get()
+            name = nam.get()
+            show_name = nam_sh.get()
+            op.o_append('settings.txt', f'{show_name},{name},{path},{folder}', newline=True)
+            tk.destroy()
+            settings()
+
+        l_e = Entry(tk, textvariable=nam_sh, width=50)
+        l_e.grid(row=0, column=1)
+        n_e = Entry(tk, textvariable=nam, width=50)
+        n_e.grid(row=1, column=1)
+        n_e = Entry(tk, textvariable=pat, width=50)
+        n_e.grid(row=2, column=1)
+        n_e = Entry(tk, textvariable=fold, width=50)
+        n_e.grid(row=3, column=1)
+
+        Label(tk, text='enter the name to be displayed:').grid(row=0, column=0)
+        Label(tk, text='enter the name of registry:').grid(row=1, column=0)
+        Label(tk, text='enter the name of the folder of the registry:').grid(row=3, column=0)
+        Label(tk, text='enter the full path except the destination folder:').grid(row=2, column=0)
+        ttk.Button(tk, text='add', command=submit).grid(row=4, column=2)
+        tk.mainloop()
+
+    add_b = ttk.Button(groot, text='Add a setting', command=add_setting)
+    add_b.grid(row=0, column=4)
+    install_b = ttk.Button(groot, text='change', command=change)
+    install_b.grid(row=0, column=3)
+    skip_b = ttk.Button(groot, text='skip', command=groot.destroy)
+    skip_b.grid(row=0, column=5)
+    groot.mainloop()
+
+
+settings()
+
+
 val = []
 
 
@@ -79,26 +176,22 @@ def application():
             lst.append(sp[0])
             d_lst[sp[0]] = sp[1]
 
-    auch.cr_checkbox(root, lst, bg=theme, fg=f_theme)
+    dwnbx = auch.cr_checkbox(root, lst, bg=theme, fg=f_theme)
 
-    def mysql():
+    def mysql(base_url, app):
         request_sql = str(
-            requests.get(url='https://dev.mysql.com/downloads/installer/', allow_redirects=True).content).split(
+            requests.get(url=base_url, allow_redirects=True).content).split(
             ' ')
-        lis_sql = []
-        for tt in request_sql:
-            if 'href' in tt and 'https' not in tt:
-                lis_sql.append(t)
         req = []
-        for iii in lis_sql:
-            if '/downloads/file/?id=' in iii:
+        for iii in request_sql:
+            if ('href' in iii or 'https' in iii) and '/downloads/file/?id=' in iii:
                 req.append(iii)
         last = str(
             requests.get(url='https://dev.mysql.com/' + req[-1].split('"')[1], allow_redirects=True).content).split(
             ' ')
         for g in last:
             if '.msi' in g and 'href' in g and 'https' not in g:
-                fhf = open(f'{windisk}:\\Users\\{user}\\Downloads\\mysql.exe', 'wb')
+                fhf = open(f'{windisk}:\\Users\\{user}\\Downloads\\{app}.msi', 'wb')
                 fhf.write(requests.get(url='https://dev.mysql.com/' + g.split('"')[1], allow_redirects=True).content)
                 fhf.close()
 
@@ -141,7 +234,7 @@ def application():
         request_sql = str(requests.get(url=urls, allow_redirects=True).content).split(' ')
         for ti in request_sql:
             if (f'VirtualBox-{s}.{m}.{ll}' in ti and '.exe' in ti) and 'href' in ti:
-                open(f'{app}.exe', 'wb').write(requests.get(url=urls + ti.split('"')[1], allow_redirects=True).content)
+                open(f'{windisk}:\\Users\\{user}\\Downloads\\{app}.exe', 'wb').write(requests.get(url=urls + ti.split('"')[1], allow_redirects=True).content)
             if (f'Oracle_VM_VirtualBox_Extension_Pack-{s}.{m}.{ll}.vbox-extpack' in ti) and 'href' in ti:
                 fhg = open(
                     f'{windisk}:\\Users\\{user}\\Downloads\\Oracle_VM_VirtualBox_Extension_Pack-{s}.{m}.{ll}.vbox-extpack',
@@ -170,36 +263,35 @@ def application():
     def start_down():
         global val, root_dir, inst
         os.chdir(root_dir)
-
         for j in val:
-            if 'mysql' in j:
-                mysql()
-            elif 'python' in j:
-                ext_download(d_lst[j], j)
-            elif 'sublime' in j:
-                ext_download(d_lst[j], j)
-            elif 'vm' in j:
-                vm(d_lst[j], j)
+            if d_lst[j] == "link":
+                pass
             else:
-                def rss():
-                    fhd = open(f'{windisk}:\\Users\\{user}\\Downloads\\{j}.exe', 'wb')
-                    fhd.write(requests.get(url=d_lst[j], allow_redirects=True).content)
-                    fhd.close()
+                if 'mysql' in j:
+                    mysql(d_lst[j], j)
+                elif 'python' in j:
+                    ext_download(d_lst[j], j)
+                elif 'sublime' in j:
+                    ext_download(d_lst[j], j)
+                elif 'vm' in j:
+                    vm(d_lst[j], j)
+                else:
+                    def rss():
+                        fhd = open(f'{windisk}:\\Users\\{user}\\Downloads\\{j}.exe', 'wb')
+                        fhd.write(requests.get(url=d_lst[j], allow_redirects=True).content)
+                        fhd.close()
 
-                thar = threading.Thread(target=rss)
-                thar.start()
-                thar.join()
+                    thar = threading.Thread(target=rss)
+                    thar.start()
+                    thar.join()
         os.chdir(root_dir)
         fhr = open('webpages.txt')
         lis = fhr.readlines()
-        web_apps = []
         for y in lis:
-            web_apps.append(y.split(',')[0])
-        cn = 0
-        for idb in web_apps:
-            if idb in val:
-                webbrowser.open_new_tab(url=lis[cn][1])
-            cn += 1
+            lin = y.split(",")
+            if lin[0] in val:
+
+                webbrowser.open(url=lin[1].rstrip("\n"), new=2)
 
         lis_files = os.listdir(f"{windisk}:\\Users\\{user}\\Downloads\\")
         try:
@@ -216,7 +308,7 @@ def application():
 
     def download_selected():
         global val
-        val = auch.fetch_cked_val()
+        val = auch.fetch_cked_val(dwnbx)
         root.destroy()
         threading.Thread(target=start_down).start()
 
@@ -258,7 +350,7 @@ def application():
         tk.mainloop()
 
     def remove_app():
-        rm_ls = auch.fetch_cked_val()
+        rm_ls = auch.fetch_cked_val(dwnbx)
         for y in rm_ls:
             f = open('install.txt').read()
             renam = y + ',' + d_lst[y]
@@ -301,22 +393,19 @@ def start_copy():
     cpy = True
     os.chdir(root_dir)
     bxs = []
-    copyfiles.destroy()
 
 
 def copy_selected():
     global bxs
-    bxs = auch.fetch_cked_val()
-    copyfiles.title('Auto installer(copying)')
-    start_copy()
-
+    bxs = auch.fetch_cked_val(dd)
+    copyfiles.destroy()
+    threading.Thread(target=start_copy).start()
 
 def copy_all():
     global bxs
     bxs = os.listdir()
-    copyfiles.title('Auto installer(copying)')
-    start_copy()
-
+    copyfiles.destroy()
+    threading.Thread(target=start_copy).start()
 
 os.chdir('docopy')
 dd = auch.cr_checkbox(copyfiles, sequence=os.listdir(), bg=theme, fg=f_theme)
@@ -327,96 +416,10 @@ install_all_b.grid(row=0, column=4)
 copyfiles.mainloop()
 
 
-def settings():
-    global user
-    groot = Tk()
-    groot.geometry(f'{groot.winfo_screenwidth() - 500}x{groot.winfo_screenheight() - 300}+100+100')
-    groot.title('Auto installer')
-
-    liss = [[], [], [], []]
-
-    if os.path.exists('settings.txt'):
-        pass
-    else:
+def close():
+    while inst and cpy:
         os.abort()
 
-    fhh = open('settings.txt')
-    ree = fhh.readlines()
-    for iglu in ree:
-        s = iglu.split(',')
-        liss[0].append(s[0])
-        liss[1].append(s[1])
-        liss[2].append(s[2])
-        liss[3].append(s[3].rstrip("\n"))
-    Label(groot, text='Name', bg=theme, fg=f_theme).grid(row=0, column=0)
-    auch.cr_checkbox(groot, liss[0], bg=theme, fg=f_theme, row_lb=1, column_lb=0)
 
-    def change():
-        global cpy, inst
-        loc = wrg.HKEY_CURRENT_USER
+threading.Thread(target=close).start()
 
-        def regs(location, key_name='', path=r"", dest_folder="", value=0):
-            soft = wrg.OpenKeyEx(location, path)
-            key = wrg.CreateKey(soft, dest_folder)
-            wrg.SetValueEx(key, key_name, 0, wrg.REG_DWORD, value)
-            if key:
-                wrg.CloseKey(key)
-
-        for j in liss[0]:
-            au = auch.fetch_cked_val()
-            if j in au:
-                valu = 1
-            else:
-                valu = 0
-            ind = liss[0].index(j)
-            regs(location=loc, key_name=liss[1][ind], value=valu, path=liss[2][ind], dest_folder=liss[3][ind])
-
-        groot.destroy()
-        while cpy and inst:
-            os.system('taskkill /IM explorer.exe /F')
-            os.system('start explorer.exe')
-            os.abort()
-
-    def add_setting():
-        groot.destroy()
-        tk = Tk()
-        tk.geometry('800x300+100+100')
-        tk.title('Auto installer add a setting')
-        nam = StringVar(tk, value='')
-        nam_sh = StringVar(tk, value='')
-        pat = StringVar(tk, value='')
-        fold = StringVar(tk, value='')
-
-        def submit():
-            folder = fold.get()
-            path = pat.get()
-            name = nam.get()
-            show_name = nam_sh.get()
-            op.o_append('settings.txt', f'{show_name},{name},{path},{folder}', newline=True)
-            tk.destroy()
-            settings()
-
-        l_e = Entry(tk, textvariable=nam_sh, width=50)
-        l_e.grid(row=0, column=1)
-        n_e = Entry(tk, textvariable=nam, width=50)
-        n_e.grid(row=1, column=1)
-        n_e = Entry(tk, textvariable=pat, width=50)
-        n_e.grid(row=2, column=1)
-        n_e = Entry(tk, textvariable=fold, width=50)
-        n_e.grid(row=3, column=1)
-
-        Label(tk, text='enter the name to be displayed:').grid(row=0, column=0)
-        Label(tk, text='enter the name of registry:').grid(row=1, column=0)
-        Label(tk, text='enter the name of the folder of the registry:').grid(row=3, column=0)
-        Label(tk, text='enter the full path except the destination folder:').grid(row=2, column=0)
-        ttk.Button(tk, text='add', command=submit).grid(row=4, column=2)
-        tk.mainloop()
-
-    add_b = ttk.Button(groot, text='Add a setting', command=add_setting)
-    add_b.grid(row=0, column=5)
-    install_b = ttk.Button(groot, text='change', command=change)
-    install_b.grid(row=0, column=3)
-    groot.mainloop()
-
-
-settings()
