@@ -2,3 +2,10 @@ adobe,https://apps.microsoft.com/store/detail/adobe-acrobat-reader-dc/XPDP273C0X
 whatsapp,https://apps.microsoft.com/store/detail/whatsapp/9NKSQGP7F2NH?hl=en-in&gl=in&icid=CNavAppsWindowsApps
 chrome,https://www.google.com/chrome/
 pycharm,https://www.jetbrains.com/pycharm/download/download-thanks.html?platform=windows&code=PCC
+sublime,https://www.sublimetext.com/download_thanks?target=win-x64
+kmplayer,https://kmplayer.com/pc64x#layer-64X
+burpsiut,https://portswigger.net/burp/releases/community/latest
+androidstudio,https://developer.android.com/studio
+minGW,https://sourceforge.net/projects/mingw/files/latest/download#
+hwmonitor,https://download.cpuid.com/hwmonitor/hwmonitor_1.51.exe
+java,https://www.oracle.com/in/java/technologies/downloads/
