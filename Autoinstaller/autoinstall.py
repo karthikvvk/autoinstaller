@@ -19,12 +19,28 @@ import string
 from tkinter import ttk
 import threading
 import getpass
-import checkboxx.automate_checkbox as auch
 from tkinter import *
 import os
 import webbrowser
-import oopen.openeasy as op
 import winreg as wrg
+import elevate
+elevate.elevate(show_console=False)
+
+root_dir = os.getcwd()
+req_mods = {"checkboxx": "automate_checkbox", "oopen": "openeasy"}
+req_mods_lnk = {
+    "checkboxx": "https://github.com/karthikvvk/make-life-easy-python-packages-auto-checkbox-tkinter/blob/main/make-life-easy-python-packages-auto-checkbox-tkinter/automate_checkbox.py",
+    "oopen": "https://github.com/karthikvvk/make-life-easy-python-packages-oopen/blob/main/make-life-easy-python-packages-oopen/openeasy.py"}
+for hi in req_mods:
+    if os.path.exists(hi):
+        pass
+    else:
+        os.mkdir(hi)
+    open(f"{root_dir}\\{hi}\\{req_mods[hi]}.py", 'w').close()
+    open(f"{root_dir}\\{hi}\\__init__.py", 'w').close()
+    os.system(f"curl -o {root_dir}\\{hi}\\{req_mods[hi]}.py {req_mods_lnk[hi]}")
+import checkboxx.automate_checkbox as auch
+import oopen.openeasy as op
 
 try:
     os.system('python.exe -m pip install --upgrade pip > NUL')
@@ -56,7 +72,7 @@ def settings():
     groot.geometry(f'{groot.winfo_screenwidth() - 500}x{groot.winfo_screenheight() - 300}+100+100')
     groot.title('Auto installer')
 
-    liss = [[], [], [], []]
+    liss = [[], [], [], [], []]
 
     if os.path.exists('settings.txt'):
         pass
@@ -70,16 +86,24 @@ def settings():
         liss[0].append(s[0])
         liss[1].append(s[1])
         liss[2].append(s[2])
-        liss[3].append(s[3].rstrip("\n"))
+        liss[3].append(s[3])
+        liss[4].append(s[4].rstrip("\n"))
     Label(groot, text='Name', bg=theme, fg=f_theme).grid(row=0, column=0)
     regchbx = auch.cr_checkbox(groot, liss[0], bg=theme, fg=f_theme, row_lb=1, column_lb=0)
 
     def change():
-        global cpy, inst
-        loc = wrg.HKEY_CURRENT_USER
-
-        def regs(location, key_name='', path=r"", dest_folder="", value=0):
-            soft = wrg.OpenKeyEx(location, path)
+        def regs(hky, key_name='', path=r"", dest_folder="", value=0):
+            if hky == "HKEY_CURRENT_USER":
+                loc = wrg.HKEY_CURRENT_USER
+            elif hky == "HKEY_CLASSES_ROOT":
+                loc = wrg.HKEY_CLASSES_ROOT
+            elif hky == "HKEY_LOCAL_MACHINE":
+                loc = wrg.HKEY_LOCAL_MACHINE
+            elif hky == "HKEY_USERS":
+                loc = wrg.HKEY_USERS
+            elif hky == "HKEY_CURRENT_CONFIG":
+                loc = wrg.HKEY_CURRENT_CONFIG
+            soft = wrg.OpenKeyEx(loc, path)
             key = wrg.CreateKey(soft, dest_folder)
             wrg.SetValueEx(key, key_name, 0, wrg.REG_DWORD, value)
             if key:
@@ -92,7 +116,7 @@ def settings():
             else:
                 valu = 0
             ind = liss[0].index(j)
-            regs(location=loc, key_name=liss[1][ind], value=valu, path=liss[2][ind], dest_folder=liss[3][ind])
+            regs(hky=liss[2][ind], key_name=liss[1][ind], value=valu, path=liss[3][ind], dest_folder=liss[4][ind])
 
         groot.destroy()
         os.system('taskkill /IM explorer.exe /F')
@@ -107,30 +131,31 @@ def settings():
         nam_sh = StringVar(tk, value='')
         pat = StringVar(tk, value='')
         fold = StringVar(tk, value='')
+        hkey = StringVar(tk, value='')
 
         def submit():
+            hkey_name = hkey.get().upper()
             folder = fold.get()
             path = pat.get()
             name = nam.get()
             show_name = nam_sh.get()
-            op.o_append('settings.txt', f'{show_name},{name},{path},{folder}', newline=True)
+
+            op.o_append('settings.txt', f'{show_name},{name},{hkey_name},{path},{folder}', newline=True)
             tk.destroy()
             settings()
 
-        l_e = Entry(tk, textvariable=nam_sh, width=50)
-        l_e.grid(row=0, column=1)
-        n_e = Entry(tk, textvariable=nam, width=50)
-        n_e.grid(row=1, column=1)
-        n_e = Entry(tk, textvariable=pat, width=50)
-        n_e.grid(row=2, column=1)
-        n_e = Entry(tk, textvariable=fold, width=50)
-        n_e.grid(row=3, column=1)
+        Entry(tk, textvariable=nam_sh, width=50).grid(row=0, column=1)
+        Entry(tk, textvariable=nam, width=50).grid(row=1, column=1)
+        Entry(tk, textvariable=pat, width=50).grid(row=2, column=1)
+        Entry(tk, textvariable=fold, width=50).grid(row=3, column=1)
+        Entry(tk, textvariable=hkey, width=50).grid(row=4, column=1)
 
         Label(tk, text='enter the name to be displayed:').grid(row=0, column=0)
         Label(tk, text='enter the name of registry:').grid(row=1, column=0)
+        Label(tk, text='enter the HKEY name:').grid(row=4, column=0)
         Label(tk, text='enter the name of the folder of the registry:').grid(row=3, column=0)
         Label(tk, text='enter the full path except the destination folder:').grid(row=2, column=0)
-        ttk.Button(tk, text='add', command=submit).grid(row=4, column=2)
+        ttk.Button(tk, text='add', command=submit).grid(row=5, column=2)
         tk.mainloop()
 
     add_b = ttk.Button(groot, text='Add a setting', command=add_setting)
