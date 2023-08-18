@@ -1,16 +1,17 @@
-light theme for apps,AppsUseLightTheme,Software\Microsoft\Windows\CurrentVersion\Themes\,Personalize
-light theme for system,SystemUsesLightTheme,Software\Microsoft\Windows\CurrentVersion\Themes\,Personalize
-enable transparency,EnableTransparency,Software\Microsoft\Windows\CurrentVersion\Themes\,Personalize
-auto hide scrollbar,DynamicScrollbars,Control Panel\,Accessibility
-turn on clipboard history,EnableClipboardHistory,Software\Microsoft\,Clipboard
-show full path in title bar,FullPath,Software\Microsoft\Windows\CurrentVersion\Explorer\,CabinetState
-enable taskbar animation,TaskbarAnimations,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
-show icons instead of thumbnail,IconsOnly,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
-show task view button,ShowTaskViewButton,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
-show thumbnail instead of icons,HideIcons,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
-hide file extensions,HideFileExt,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
-hide empty drivers,HideDrivesWithNoMedia,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
-hide merge conflicts,HideMergeConflicts,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
-show search box,SearchboxTaskbarMode,Software\Microsoft\Windows\CurrentVersion\,Search
-enable InkingAndTypingPersonalization,Value,Software\Microsoft\Windows\CurrentVersion\CPSS\Store\,InkingAndTypingPersonalization
-enable TailoredExperiencesWithDiagnosticDataEnabled,Value,Software\Microsoft\Windows\CurrentVersion\CPSS\Store\,TailoredExperiencesWithDiagnosticDataEnabled
+light theme for apps,AppsUseLightTheme,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Themes\,Personalize
+light theme for system,SystemUsesLightTheme,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Themes\,Personalize
+enable transparency,EnableTransparency,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Themes\,Personalize
+auto hide scrollbar,DynamicScrollbars,HKEY_CURRENT_USER,Control Panel\,Accessibility
+turn on clipboard history,EnableClipboardHistory,HKEY_CURRENT_USER,Software\Microsoft\,Clipboard
+show full path in title bar,FullPath,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Explorer\,CabinetState
+enable taskbar animation,TaskbarAnimations,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
+show icons instead of thumbnail,IconsOnly,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
+show task view button,ShowTaskViewButton,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
+show thumbnail instead of icons,HideIcons,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
+hide file extensions,HideFileExt,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
+hide empty drivers,HideDrivesWithNoMedia,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
+hide merge conflicts,HideMergeConflicts,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\Explorer\,Advanced
+show search box,SearchboxTaskbarMode,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\,Search
+enable InkingAndTypingPersonalization,Value,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\CPSS\Store\,InkingAndTypingPersonalization
+enable TailoredExperiencesWithDiagnosticDataEnabled,Value,HKEY_CURRENT_USER,Software\Microsoft\Windows\CurrentVersion\CPSS\Store\,TailoredExperiencesWithDiagnosticDataEnabled
+verbos,verbosestatus,HKEY_LOCAL_MACHINE,SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\,System
