@@ -24,6 +24,8 @@ import os
 import webbrowser
 import winreg as wrg
 import elevate
+import urllib.request
+
 elevate.elevate(show_console=False)
 
 root_dir = os.getcwd()
@@ -36,9 +38,8 @@ for hi in req_mods:
         pass
     else:
         os.mkdir(hi)
-    open(f"{root_dir}\\{hi}\\{req_mods[hi]}.py", 'w').close()
     open(f"{root_dir}\\{hi}\\__init__.py", 'w').close()
-    os.system(f"curl -o {root_dir}\\{hi}\\{req_mods[hi]}.py {req_mods_lnk[hi]}")
+    urllib.request.urlretrieve(req_mods_lnk[hi], f"{root_dir}\\{hi}\\{req_mods[hi]}.py")
 import checkboxx.automate_checkbox as auch
 import oopen.openeasy as op
 
@@ -110,7 +111,7 @@ def settings():
                 wrg.CloseKey(key)
 
         for j in liss[0]:
-            au = auch.fetch_cked_val(regchbx)
+            au = auch.fetch_cked_val(regchbx[0])
             if j in au:
                 valu = 1
             else:
@@ -333,7 +334,7 @@ def application():
 
     def download_selected():
         global val
-        val = auch.fetch_cked_val(dwnbx)
+        val = auch.fetch_cked_val(dwnbx[0])
         root.destroy()
         threading.Thread(target=start_down).start()
 
@@ -375,7 +376,7 @@ def application():
         tk.mainloop()
 
     def remove_app():
-        rm_ls = auch.fetch_cked_val(dwnbx)
+        rm_ls = auch.fetch_cked_val(dwnbx[0])
         for y in rm_ls:
             f = open('install.txt').read()
             renam = y + ',' + d_lst[y]
@@ -422,7 +423,7 @@ def start_copy():
 
 def copy_selected():
     global bxs
-    bxs = auch.fetch_cked_val(dd)
+    bxs = auch.fetch_cked_val(dd[0])
     copyfiles.destroy()
     threading.Thread(target=start_copy).start()
 
